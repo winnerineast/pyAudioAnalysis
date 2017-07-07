@@ -315,6 +315,18 @@ def featureAndTrain(listOfDirs, mtWin, mtStep, stWin, stStep, classifierType, mo
         classifierParams = numpy.array([10, 25, 50, 100,200,500])        
 
     # get optimal classifeir parameter:
+    features2 = []
+    for f in features:        
+        fTemp = []
+        for i in range(f.shape[0]):
+            temp = f[i,:]
+            if (not numpy.isnan(temp).any()) and (not numpy.isinf(temp).any()) :
+                fTemp.append(temp.tolist())
+            else:
+                print "NaN Found! Feature vector not used for training"
+        features2.append(numpy.array(fTemp))
+    features = features2
+
     bestParam = evaluateClassifier(features, classNames, 100, classifierType, classifierParams, 0, perTrain)
 
     print "Selected params: {0:.5f}".format(bestParam)
@@ -893,8 +905,8 @@ def normalizeFeatures(features):
                 X = numpy.vstack((X, f))
             count += 1
 
-    MEAN = numpy.mean(X, axis=0)
-    STD = numpy.std(X, axis=0)
+    MEAN = numpy.mean(X, axis=0) + 0.00000000000001;
+    STD = numpy.std(X, axis=0) + 0.00000000000001;
 
     featuresNorm = []
     for f in features:
@@ -972,6 +984,11 @@ def fileClassification(inputFile, modelName, modelType):
 
     [Fs, x] = audioBasicIO.readAudioFile(inputFile)        # read audio file and convert to mono
     x = audioBasicIO.stereo2mono(x)
+
+    if isinstance(x, int):                                 # audio file IO problem
+        return (-1, -1, -1)
+
+
     # feature extraction:
     [MidTermFeatures, s] = aF.mtFeatureExtraction(x, Fs, mtWin * Fs, mtStep * Fs, round(Fs * stWin), round(Fs * stStep))
     MidTermFeatures = MidTermFeatures.mean(axis=1)        # long term averaging of mid-term statistics
