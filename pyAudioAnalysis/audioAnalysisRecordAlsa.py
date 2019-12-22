@@ -75,9 +75,9 @@ def recordAnalyzeAudio(duration, outputWavFile, midTermBufferSizeSec, modelName,
 	'''
 
 	if modelType=='svm':
-		[Classifier, MEAN, STD, classNames, mtWin, mtStep, stWin, stStep, computeBEAT] = aT.loadSVModel(modelName)
+		[Classifier, MEAN, STD, classNames, mtWin, mtStep, stWin, stStep, compute_beat] = aT.load_model(modelName)
 	elif modelType=='knn':
-		[Classifier, MEAN, STD, classNames, mtWin, mtStep, stWin, stStep, computeBEAT] = aT.loadKNNModel(modelName)
+		[Classifier, MEAN, STD, classNames, mtWin, mtStep, stWin, stStep, compute_beat] = aT.load_model_knn(modelName)
 	else:
 		Classifier = None
 
@@ -107,7 +107,7 @@ def recordAnalyzeAudio(duration, outputWavFile, midTermBufferSizeSec, modelName,
 		if len(midTermBuffer) == midTermBufferSize:
 			count += 1						
 			if Classifier!=None:
-				[mtFeatures, stFeatures] = aF.mtFeatureExtraction(midTermBuffer, Fs, 2.0*Fs, 2.0*Fs, 0.020*Fs, 0.020*Fs)
+				[mtFeatures, stFeatures, _] = aF.mtFeatureExtraction(midTermBuffer, Fs, 2.0*Fs, 2.0*Fs, 0.020*Fs, 0.020*Fs)
 				curFV = (mtFeatures[:,0] - MEAN) / STD;
 				[result, P] = aT.classifierWrapper(Classifier, modelType, curFV)
 				print classNames[int(result)]
